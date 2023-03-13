@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+ database:
+    image: mysql
+    container_name: database
+    restart: unless-stopped
+    environement: 
+    MYSQL_DATABASE: api-laravel
+    MYSQL_ROOT_PASSWORD: root
+    SERVICE_TAGS: dev
+    SERVICE_NAME: mysql
+    
+
