@@ -25,8 +25,8 @@ func main() {
 	products := make([]Product, 0)
 
 	// Callbacks
-	c.OnHTML("a.core", func(e *colly.HTMLElement) {
-		e.ForEach("div.name", func(i int, h *colly.HTMLElement) {
+	c.OnHTML("a.[comp card--image-top mntl-card-list-items mntl-document-card mntl-card card card--no-image]", func(e *colly.HTMLElement) {
+		e.ForEach("span.[card__title-text]", func(i int, h *colly.HTMLElement) {
 			item := Product{}
 			item.Titre = h.Text
 			item.Image = e.ChildAttr("img", "data-src")
@@ -42,7 +42,7 @@ func main() {
 	})
 
 	c.OnResponse(func(r *colly.Response) {
-		fmt.Println("Got a response from", r.Request.URL)
+		fmt.Println("Response Code", r.StatusCode)
 	})
 
 	c.OnError(func(r *colly.Response, e error) {
