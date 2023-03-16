@@ -28,22 +28,29 @@ func main() {
 		fmt.Println("Status:", r.StatusCode)
 	})
 
-	c.OnHTML("div.card__content", func(h *colly.HTMLElement) {
+	c.OnHTML(".three-post--home", func(h *colly.HTMLElement) {
 		products := products{
-			Name: h.ChildText("span.card__title-text"),
+			Name: h.ChildText(".card__title-text"),
+			URL: h.ChildAttr(".card--image-top", "href"),
 		}
 		fmt.Println(products)
 		allProducts = append(allProducts, products)
 	})
 
 	// Ici le récupère les URL des pages
-	c.OnHTML("div.three-post__inner", func(h *colly.HTMLElement) {
-		products := products{
-			URL: h.ChildAttr("a.card--image-top", "href"),
-		}
-		fmt.Println(products)
-		allProducts = append(allProducts, products)
-	})
+	// c.OnHTML(".three-post__inner", func(h *colly.HTMLElement) {
+	// 	products := products{
+	// 		URL: h.ChildAttr("a.card--image-top", "href"),
+	// 	}
+	// 	fmt.Println(products)
+	// 	allProducts = append(allProducts, products)
+	// })
+	
+	// je veux récupère les data d'une autre page
+	// c.OnHTML("nav.header-nav", func(p *colly.HTMLElement) {
+	// 	nextPage := p.Request.AbsoluteURL(p.Attr("li.header-nav__list-item"))
+	// 	c.Visit(nextPage)
+	// })
 
 	c.OnError(func(r *colly.Response, err error) {
 		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "nError:", err)
