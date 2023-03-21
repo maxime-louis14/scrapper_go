@@ -1,9 +1,8 @@
 
-## Installation
+## Deployment
 
-Install my-project with npm
+To deploy this project run
 
 ```bash
-  npm install my-project
+  go run main.go
 ```
-    
