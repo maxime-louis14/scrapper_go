@@ -31,7 +31,7 @@ func main() {
 	// OnHTML enregistre une fonction. La fonction sera exécutée sur chaque HTML élément correspondant au paramètre
 	c.OnHTML("a.mntl-card", func(h *colly.HTMLElement) {
 		products := products{
-			URL:  h.ChildAttr("a.mntl-card-list-items", "href"),
+			URL:  h.Attr("href"),
 			Name: h.ChildText(".card__title-text"),
 		}
 		fmt.Println(products)
@@ -51,3 +51,4 @@ func main() {
 	os.WriteFile("data.json", content, 0644)
 	fmt.Println("Total produts: ", len(allProducts))
 }
+
