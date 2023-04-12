@@ -64,10 +64,10 @@ func main() {
 		c.Visit(nextPage) // Je veux aller sur une autre page.
 	})
  
-	c.OnHTML("article.allrecipes-article", func(h *colly.HTMLElement) {
+	c.OnHTML(".sc-ad-container", func(h *colly.HTMLElement) {
 		recettes := recettes{
 			Descriptions: h.ChildText("p.article-subheading"),
-			Photos:       h.Attr("src"),
+			Photos:       h.ChildAttr(".img-placeholder", "src"),
 			Ingredients:  h.ChildText("li.mntl-structured-ingredients__list-item"),
 			Directions:   h.ChildText("div.mntl-block"),
 		}
