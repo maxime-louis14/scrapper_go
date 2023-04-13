@@ -49,27 +49,30 @@ func main() {
 		fmt.Println("Status:", r.StatusCode)
 	})
 
+	
+
 	// OnHTML enregistre une fonction. La fonction sera exécutée sur chaque HTML élément correspondant au paramètre
 	c.OnHTML("a.mntl-card", func(h *colly.HTMLElement) {
 		products := products{
 			URL:  h.Attr("href"),
 			Name: h.ChildText(".card__title-text"),
 		}
-		fmt.Println(products)
+
+		// Si la page n'a pas déjà été visitée alors tu la joute dans le data.JSON 
+		if !{
+			
+		}
+		// fmt.Println(products)	
 		allProducts = append(allProducts, products)
 	})
-
-	c.OnHTML("a.mntl-card", func(p *colly.HTMLElement) {
-		nextPage := p.Request.AbsoluteURL(p.Attr("URL"))
-		c.Visit(nextPage) // Je veux aller sur une autre page.
-	})
- 
-	c.OnHTML(".sc-ad-container", func(h *colly.HTMLElement) {
+	
+	
+	c.OnHTML("article.fixed-recipe-card", func(h *colly.HTMLElement) {
 		recettes := recettes{
 			Descriptions: h.ChildText("p.article-subheading"),
-			Photos:       h.ChildAttr(".img-placeholder", "src"),
-			Ingredients:  h.ChildText("li.mntl-structured-ingredients__list-item"),
-			Directions:   h.ChildText("div.mntl-block"),
+			Photos:       h.ChildAttr("div.img-placeholder", "src"),
+			Ingredients:  h.ChildText("div.mntl-structured-ingredients"),
+			Directions:   h.ChildText("div.recipe__steps"),
 		}
 		fmt.Println(recettes)
 		allRecettes = append(allRecettes, recettes)
@@ -88,4 +91,5 @@ func main() {
 
 	os.WriteFile("data.json", content, 0644)
 	fmt.Println("Total produts: ", len(allProducts))
+	fmt.Println("Total recettes: ", len(allRecettes))
 }
