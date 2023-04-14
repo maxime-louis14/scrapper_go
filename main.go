@@ -2,44 +2,45 @@ package main
 
 import (
 	"encoding/json"
+
 	"fmt"
-	"net"
-	"net/http"
+
 	"os"
-	"time"
 
 	"github.com/gocolly/colly"
 )
 
-type products struct {
-	recettes
-	Name string `json:"name"`
-	URL  string `json:"url"`
+type data struct {
+	URL      []URL      `json:"URL"`
+	Recettes []recettes `json:"recettes"`
+}
+
+type URL struct {
+	URL string `json:"url"`
 }
 
 type recettes struct {
+	Name         string `json:"name"`
 	Descriptions string `json:"descriptions"`
 	Ingredients  string `json:"ingredients"`
 	Photos       string `json:"photos"`
 	Directions   string `json:"directions"`
 }
 
-var allProducts []products
+var allURL []URL
 var allRecettes []recettes
+var image string
 
 func main() {
-	c := colly.NewCollector()
-	c.WithTransport(&http.Transport{
-		DialContext: (&net.Dialer{
-			Timeout:   60 * time.Second,
-			KeepAlive: 30 * time.Second,
-			DualStack: true,
-		}).DialContext,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	})
+
+	allData := data{
+		URL:      []URL{},
+		Recettes: []recettes{},
+	}
+
+	c := colly.NewCollector(
+		colly.AllowedDomains("allrecipes.com", "www.allrecipes.com"),
+	)
 
 	c.OnRequest(func(r *colly.Request) {
 		fmt.Println("Scraping:", r.URL)
@@ -49,33 +50,27 @@ func main() {
 		fmt.Println("Status:", r.StatusCode)
 	})
 
-	
-
 	// OnHTML enregistre une fonction. La fonction sera exécutée sur chaque HTML élément correspondant au paramètre
-	c.OnHTML("a.mntl-card", func(h *colly.HTMLElement) {
-		products := products{
-			URL:  h.Attr("href"),
-			Name: h.ChildText(".card__title-text"),
+	c.OnHTML("div.mntl-taxonomysc-article-list-group .mntl-card", func(h *colly.HTMLElement) {
+		URL := URL{
+			URL: h.Attr("href"),
 		}
-
-		// Si la page n'a pas déjà été visitée alors tu la joute dans le data.JSON 
-		if !{
-			
-		}
-		// fmt.Println(products)	
-		allProducts = append(allProducts, products)
+		image = h.ChildAttr("img", "data-src")
+		fmt.Println(URL.URL)
+		c.Visit(URL.URL)
+		allData.URL = append(allData.URL, URL)
 	})
-	
-	
-	c.OnHTML("article.fixed-recipe-card", func(h *colly.HTMLElement) {
+
+	c.OnHTML("article.mntl-article", func(h *colly.HTMLElement) {
 		recettes := recettes{
+			Name:         h.ChildText("h1.type--lion"),
 			Descriptions: h.ChildText("p.article-subheading"),
-			Photos:       h.ChildAttr("div.img-placeholder", "src"),
+			Photos:       image,
 			Ingredients:  h.ChildText("div.mntl-structured-ingredients"),
 			Directions:   h.ChildText("div.recipe__steps"),
 		}
 		fmt.Println(recettes)
-		allRecettes = append(allRecettes, recettes)
+		allData.Recettes = append(allData.Recettes, recettes)
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
@@ -84,12 +79,12 @@ func main() {
 
 	c.Visit("https://www.allrecipes.com/recipes/17562/dinner/")
 
-	content, err := json.Marshal(allProducts)
+	content, err := json.Marshal(allData)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
 	os.WriteFile("data.json", content, 0644)
-	fmt.Println("Total produts: ", len(allProducts))
+	fmt.Println("Total URL: ", len(allURL))
 	fmt.Println("Total recettes: ", len(allRecettes))
 }
