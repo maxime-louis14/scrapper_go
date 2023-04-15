@@ -11,12 +11,7 @@ import (
 )
 
 type data struct {
-	URL      []URL      `json:"URL"`
 	Recettes []recettes `json:"recettes"`
-}
-
-type URL struct {
-	URL string `json:"url"`
 }
 
 type recettes struct {
@@ -25,16 +20,16 @@ type recettes struct {
 	Ingredients  string `json:"ingredients"`
 	Photos       string `json:"photos"`
 	Directions   string `json:"directions"`
+	Page         string `json:"line"`
 }
 
-var allURL []URL
 var allRecettes []recettes
 var image string
+var link string
 
 func main() {
 
 	allData := data{
-		URL:      []URL{},
 		Recettes: []recettes{},
 	}
 
@@ -52,19 +47,16 @@ func main() {
 
 	// OnHTML enregistre une fonction. La fonction sera exécutée sur chaque HTML élément correspondant au paramètre
 	c.OnHTML("div.mntl-taxonomysc-article-list-group .mntl-card", func(h *colly.HTMLElement) {
-		URL := URL{
-			URL: h.Attr("href"),
-		}
+		link = h.Attr("href")
 		image = h.ChildAttr("img", "data-src")
-		fmt.Println(URL.URL)
-		c.Visit(URL.URL)
-		allData.URL = append(allData.URL, URL)
+		c.Visit(link)
 	})
 
 	c.OnHTML("article.mntl-article", func(h *colly.HTMLElement) {
 		recettes := recettes{
 			Name:         h.ChildText("h1.type--lion"),
 			Descriptions: h.ChildText("p.article-subheading"),
+			Page:         link,
 			Photos:       image,
 			Ingredients:  h.ChildText("div.mntl-structured-ingredients"),
 			Directions:   h.ChildText("div.recipe__steps"),
@@ -85,6 +77,5 @@ func main() {
 	}
 
 	os.WriteFile("data.json", content, 0644)
-	fmt.Println("Total URL: ", len(allURL))
 	fmt.Println("Total recettes: ", len(allRecettes))
 }
