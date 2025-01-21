@@ -7,7 +7,7 @@ Pour activer le scraper fait. Ou (dans le dossier ou se trouve le main.go)
 ```
 
 
-# Bonjour, je suis Maxime ! Voici un projet demandé par mon école NWS 👋
+# Bonjour ! Voici un projet demandé par mon école NWS 👋
 
 ## Consignes
 
